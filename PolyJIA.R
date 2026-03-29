@@ -89,6 +89,13 @@ tT_JIA <- topTable(JIAlm2, coef = 1, adjust="fdr", sort.by="B", number=1000, p.v
 #Filter table of results
 tT_JIA <- subset(tT_JIA, select=c("ID","adj.P.Val","P.Value","Gene.symbol","Gene.title"))
 
+# summarize test results as "up", "down" or "not expressed"
+dT <- decideTests(JIAlm2, adjust.method="fdr", p.value=0.05, lfc=0)
+
+#Create volcano plot
+volcanoplot(JIAlm2, coef = 1, main = "Volcano Plot of Upregulated and Downregulated JIA Genes", pch = 20,
+            highlight = length(which(dT[,1]!=0)), names = rep('+', nrow(JIAlm2)))
+
 #Create a list of gene symbols to use to filter the original JIA gset
 JIA_genes <- as.list(tT_JIA$Gene.symbol)
 filtered_JIA <- JIA[fData(JIA)$Gene.symbol %in% JIA_genes, ]
@@ -266,6 +273,13 @@ tT_EBV <- topTable(EBVlm2, coef = 1, adjust="fdr", sort.by="B", number=1000, p.v
 
 #Filter and display table of results
 tT_EBV <- subset(tT_EBV, select=c("ID","adj.P.Val","P.Value","Gene.symbol","Gene.title"))
+
+# summarize test results as "up", "down" or "not expressed"
+dT <- decideTests(EBVlm2, adjust.method="fdr", p.value=0.05, lfc=0)
+
+#Create volcano plot
+volcanoplot(EBVlm2, coef = 1, main = "Volcano Plot of Upregulated and Downregulated EBV Genes", pch = 20,
+            highlight = length(which(dT[,1]!=0)), names = rep('+', nrow(EBVlm2)))
 
 #Create a list of gene symbols to use to filter the original EBV gset
 EBV_genes <- as.list(tT_EBV$Gene.symbol)
@@ -450,6 +464,14 @@ tT_H1N1 <- topTable(H1N1lm2, coef = 1, adjust="fdr", sort.by="B", number=1500, p
 
 #Filter and display table of results
 tT_H1N1 <- subset(tT_H1N1, select=c("ID","adj.P.Val","P.Value","Gene.symbol","Gene.title"))
+View(tT_H1N1)
+
+# summarize test results as "up", "down" or "not expressed"
+dT <- decideTests(H1N1lm2, adjust.method="fdr", p.value=0.05, lfc=0)
+
+#Create volcano plot
+volcanoplot(H1N1lm2, coef = 1, main = "Volcano Plot of Upregulated and Downregulated H1N1 Genes", pch = 20,
+            highlight = length(which(dT[,1]!=0)), names = rep('+', nrow(H1N1lm2)))
 
 #Create a list of gene symbols to use to filter the original H1N1 gset
 H1N1_genes <- as.list(tT_H1N1$Gene.symbol)
@@ -548,3 +570,11 @@ degree_H1N1 <- data.frame(
   degree = as.numeric(degrees),
   stringsAsFactors = FALSE
 )
+
+#Compare all tables of all differentially expressed genes
+df_EBV <- data.frame(tT_EBV)
+df_JIA <- data.frame(tT_JIA)
+df_H1N1 <- data.frame(tT_H1N1)
+matching_JIA_EBV <- inner_join(df_EBV, df_JIA, by = "Gene.symbol")
+matching_JIA_H1N1 <- inner_join(df_H1N1, df_JIA, by = "Gene.symbol")
+
